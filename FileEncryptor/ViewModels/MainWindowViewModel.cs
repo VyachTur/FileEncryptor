@@ -42,6 +42,8 @@ namespace FileEncryptor.WPF.ViewModels
 
         #region Commands
 
+        #region SelectFileCommand
+
         private ICommand? _selectFileCommand;
 
         public ICommand SelectFileCommand => _selectFileCommand ??= new LambdaCommand(OnSelectFileCommandExecuted);
@@ -52,6 +54,46 @@ namespace FileEncryptor.WPF.ViewModels
             var selectedFile = new FileInfo(filePath);
             SelectedFile = selectedFile.Exists ? selectedFile : null;
         }
+
+        #endregion // SelectFileCommand
+
+
+        #region EncryptCommand
+
+        private ICommand? _encryptCommand;
+
+        public ICommand EncryptCommand => _encryptCommand ??= new LambdaCommand(OnEncryptCommandExecuted, CanEncryptCommandExecute);
+
+        private bool CanEncryptCommandExecute(object p) 
+            => (p is FileInfo file && file.Exists || SelectedFile != null) 
+            && !string.IsNullOrWhiteSpace(Password);
+
+        private void OnEncryptCommandExecuted(object p)
+        {
+            var file = p as FileInfo ?? SelectedFile;
+            if (file is null) return;
+        }
+
+        #endregion // EncryptCommand
+
+        #region DecryptCommand
+
+        private ICommand? _decryptCommand;
+
+        public ICommand DecryptCommand => _decryptCommand ??= new LambdaCommand(OnDecryptCommandExecuted, CanDecryptCommandExecute);
+
+        private bool CanDecryptCommandExecute(object p)
+            => (p is FileInfo file && file.Exists || SelectedFile != null)
+            && !string.IsNullOrWhiteSpace(Password);
+
+        private void OnDecryptCommandExecuted(object p)
+        {
+            var file = p as FileInfo ?? SelectedFile;
+            if (file is null) return;
+        }
+
+        #endregion // DecryptCommand
+
 
         #endregion // Commands
 
