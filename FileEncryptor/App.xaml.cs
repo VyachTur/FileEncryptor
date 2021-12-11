@@ -21,9 +21,9 @@ namespace FileEncryptor
         public static Window ActivedWindow => Current.Windows.Cast<Window>().FirstOrDefault(w => w.IsActive);
 
 
-        private static IHost __host;
+        private static IHost s_host;
 
-        public static IHost Host => __host ??= Program.
+        public static IHost Host => s_host ??= Program.
             CreateHostBuilder(Environment.GetCommandLineArgs()).Build();
 
         public static IServiceProvider Services => Host.Services;

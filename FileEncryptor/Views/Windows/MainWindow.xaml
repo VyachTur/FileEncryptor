@@ -68,10 +68,12 @@
             <UniformGrid Grid.Row="3" Grid.ColumnSpan="2" Rows="1" Margin="0,10"
                          VerticalAlignment="Top" HorizontalAlignment="Center">
                 <Button Content="Зашифровать" Margin="5" Padding="30,10" 
-                        Command="{Binding EncryptCommand}"/>
+                        Command="{Binding EncryptCommand}"
+                        CommandParameter="{Binding SelectedFile}"/>
                 
                 <Button Content="Рсшифровать" Margin="5" Padding="30,10" 
-                        Command="{Binding DecryptCommand}"/>
+                        Command="{Binding DecryptCommand}"
+                        CommandParameter="{Binding SelectedFile}"/>
             </UniformGrid>
         </Grid>
         

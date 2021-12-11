@@ -8,5 +8,7 @@ namespace FileEncryptor.WPF.Services.Interfaces
 
         bool OpenFiles(string title, out IEnumerable<string> selectedFiles, string filter = "Все файлы (*.*)|*.*");
 
+        bool SaveFile(string title, out string selectedFile, string? defaultFileName = null, string filter = "Все файлы (*.*)|*.*");
+
     }
 }

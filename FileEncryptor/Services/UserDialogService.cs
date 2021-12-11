@@ -44,5 +44,28 @@ namespace FileEncryptor.WPF.Services
             selectedFiles = fileDialog.FileNames;
             return true;
         }
+
+        public bool SaveFile(string title, out string selectedFile, string defaultFileName, string filter = "Все файлы (*.*)|*.*")
+        {
+            var fileDialog = new SaveFileDialog
+            {
+                Title = title,
+                Filter = filter
+            };
+
+            if(!string.IsNullOrWhiteSpace(defaultFileName))
+            {
+                fileDialog.FileName = defaultFileName;
+            }
+
+            if (fileDialog.ShowDialog() != true)
+            {
+                selectedFile = null;
+                return false;
+            }
+
+            selectedFile = fileDialog.FileName;
+            return true;
+        }
     }
 }

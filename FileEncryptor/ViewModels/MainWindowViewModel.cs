@@ -10,7 +10,10 @@ namespace FileEncryptor.WPF.ViewModels
     {
         #region Fields and Properties
 
+        private const string c_encryptedFileSuffix = ".encrypted";
+
         private readonly IUserDialog _userDialog;
+        private readonly IEncryptor _encryptor;
 
         #region Title
 
@@ -72,6 +75,9 @@ namespace FileEncryptor.WPF.ViewModels
         {
             var file = p as FileInfo ?? SelectedFile;
             if (file is null) return;
+
+            var defaultFileName = file.FullName + c_encryptedFileSuffix;
+            if (!_userDialog.SaveFile("Выбор файла для сохранения", out var destinationPath, defaultFileName)) return;
         }
 
         #endregion // EncryptCommand
@@ -90,6 +96,12 @@ namespace FileEncryptor.WPF.ViewModels
         {
             var file = p as FileInfo ?? SelectedFile;
             if (file is null) return;
+
+            var defaultFileName = file.FullName.EndsWith(c_encryptedFileSuffix)
+                ? file.FullName.Substring(0, file.FullName.Length - c_encryptedFileSuffix.Length)
+                : file.FullName;
+
+            if (!_userDialog.SaveFile("Выбор файла для сохранения", out var destinationPath, defaultFileName)) return;
         }
 
         #endregion // DecryptCommand
@@ -101,9 +113,10 @@ namespace FileEncryptor.WPF.ViewModels
         /// <summary>
         /// Конструктор по-умолчанию
         /// </summary>
-        public MainWindowViewModel(IUserDialog userDialog)
+        public MainWindowViewModel(IUserDialog userDialog, IEncryptor encryptor)
         {
             _userDialog = userDialog;
+            _encryptor = encryptor;
         }
 
     }
