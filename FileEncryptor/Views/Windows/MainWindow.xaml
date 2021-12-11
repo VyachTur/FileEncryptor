@@ -5,11 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:FileEncryptor.WPF.ViewModels"
         xmlns:local="clr-namespace:FileEncryptor"
+        DataContext="{Binding MainWindowVM, Source={StaticResource Locator}}"
         mc:Ignorable="d"
         Title="{Binding Title}" Height="450" Width="800">
-    <Window.DataContext>
-        <vm:MainWindowViewModel />
-    </Window.DataContext>
     <Grid>
 
     </Grid>
