@@ -9,7 +9,7 @@ namespace FileEncryptor.WPF.ViewModels
 
         private string? _title = "Файловый шифровщик";
 
-        public string Title { get => _title; set => Set(ref _title, value); }
+        public string Title { get => _title ?? string.Empty; set => Set(ref _title, value); }
 
         #endregion // Title
 
