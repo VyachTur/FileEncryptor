@@ -1,6 +1,6 @@
-﻿
-
-using FileEncryptor.WPF;
+﻿using FileEncryptor.WPF;
+using FileEncryptor.WPF.Services;
+using FileEncryptor.WPF.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -13,15 +13,15 @@ namespace FileEncryptor
     /// </summary>
     public partial class App
     {
-        private static IHost __host;
+        private static IHost? __host;
 
         public static IHost Host => __host ??= Program.
             CreateHostBuilder(Environment.GetCommandLineArgs()).Build();
 
-        internal static void ConfigureServices(HostBuilderContext host, IServiceCollection service)
-        {
-            throw new NotImplementedException();
-        }
+        public static IServiceProvider Services => Host.Services;
+
+        internal static void ConfigureServices(HostBuilderContext host, IServiceCollection services) =>
+            services.AddServices().AddViewModels();
 
         protected override async void OnStartup(StartupEventArgs e)
         {
