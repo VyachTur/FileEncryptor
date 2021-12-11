@@ -4,7 +4,10 @@ using FileEncryptor.WPF.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Linq;
 using System.Windows;
+
+#nullable disable
 
 namespace FileEncryptor
 {
@@ -13,7 +16,12 @@ namespace FileEncryptor
     /// </summary>
     public partial class App
     {
-        private static IHost? __host;
+        public static Window FocusedWindow => Current.Windows.Cast<Window>().FirstOrDefault(w => w.IsFocused);
+
+        public static Window ActivedWindow => Current.Windows.Cast<Window>().FirstOrDefault(w => w.IsActive);
+
+
+        private static IHost __host;
 
         public static IHost Host => __host ??= Program.
             CreateHostBuilder(Environment.GetCommandLineArgs()).Build();
