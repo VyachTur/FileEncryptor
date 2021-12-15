@@ -50,7 +50,7 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock Text="Пароль:" />
-            <TextBox Grid.Column="1" Text="123"/>
+            <TextBox Grid.Column="1" Text="{Binding Password}"/>
 
             <TextBlock Grid.Row="1" Text="Файл:" />
             <DockPanel Grid.Column="1" Grid.Row="1">
@@ -71,7 +71,7 @@
                         Command="{Binding EncryptCommand}"
                         CommandParameter="{Binding SelectedFile}"/>
                 
-                <Button Content="Рсшифровать" Margin="5" Padding="30,10" 
+                <Button Content="Расшифровать" Margin="5" Padding="30,10" 
                         Command="{Binding DecryptCommand}"
                         CommandParameter="{Binding SelectedFile}"/>
             </UniformGrid>

@@ -2,6 +2,7 @@
 using Microsoft.Win32;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 
 #nullable disable
 
@@ -9,6 +10,7 @@ namespace FileEncryptor.WPF.Services
 {
     internal class UserDialogService : IUserDialog
     {
+
         public bool OpenFile(string title, out string selectedFile, string filter = "Все файлы (*.*)|*.*")
         {
             var fileDialog = new OpenFileDialog
@@ -67,5 +69,14 @@ namespace FileEncryptor.WPF.Services
             selectedFile = fileDialog.FileName;
             return true;
         }
+
+        public void Error(string title, string message) => 
+            MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
+
+        public void Information(string title, string message) => 
+            MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
+
+        public void Warning(string title, string message) => 
+            MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Warning);
     }
 }

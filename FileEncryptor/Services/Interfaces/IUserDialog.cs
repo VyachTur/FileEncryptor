@@ -10,5 +10,11 @@ namespace FileEncryptor.WPF.Services.Interfaces
 
         bool SaveFile(string title, out string selectedFile, string? defaultFileName = null, string filter = "Все файлы (*.*)|*.*");
 
+        void Information(string title, string message);
+
+        void Warning(string title, string message);
+
+        void Error(string title, string message);
+
     }
 }
