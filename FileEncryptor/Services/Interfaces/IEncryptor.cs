@@ -11,5 +11,9 @@ namespace FileEncryptor.WPF.Services.Interfaces
         void Encript(string sourcePath, string destinationPath, string password, int bufferLength = 104200);
 
         bool Decript(string sourcePath, string destinationPath, string password, int bufferLength = 104200);
+
+        Task EncriptAsync(string sourcePath, string destinationPath, string password, int bufferLength = 104200);
+
+        Task<bool> DecriptAsync(string sourcePath, string destinationPath, string password, int bufferLength = 104200);
     }
 }
