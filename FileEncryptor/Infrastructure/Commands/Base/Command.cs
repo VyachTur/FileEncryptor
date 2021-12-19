@@ -18,7 +18,7 @@ namespace FileEncryptor.WPF.Infrastructure.Commands.Base
             get { return _executable; }
             set
             {
-                if (_executable != value) return;
+                if (_executable == value) return;
                 _executable = value;
                 CommandManager.InvalidateRequerySuggested();
             }
