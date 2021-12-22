@@ -1,6 +1,7 @@
 ﻿using FileEncryptor.WPF.Services.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -103,63 +104,121 @@ namespace FileEncryptor.WPF.Services
 
 
         [Obsolete]
-        public async Task EncriptAsync(string sourcePath, string destinationPath, string password, int bufferLength = 104200)
+        public async Task EncriptAsync(string sourcePath, string destinationPath, string password, int bufferLength = 104200, 
+            IProgress<double>? progress = null, CancellationToken cancel = default)
         {
             if (!File.Exists(sourcePath)) throw new FileNotFoundException("Файл-источник для процесса шифрования не найден", sourcePath);
             if (bufferLength <= 0) throw new ArgumentOutOfRangeException(nameof(bufferLength), bufferLength, "Размер буфера чтения должен быть больше 0");
             
+            cancel.ThrowIfCancellationRequested();
+
             var encryptor = GetCryptor(password);
 
-            await using var destinationEncrypted = File.Create(destinationPath, bufferLength);
-            await using var destination = new CryptoStream(destinationEncrypted, encryptor, CryptoStreamMode.Write);
-            await using var source = File.OpenRead(sourcePath);
-
-            var buffer = new byte[bufferLength];
-            int readed;
-            do
+            try
             {
-                Thread.Sleep(1);
-                readed = await source.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
-                // Дополнительные действия по завершению асинхронной операции
-                // .........
-                await destination.WriteAsync(buffer, 0, readed).ConfigureAwait(false);
-            } while (readed > 0);
-            destination.FlushFinalBlock();
+                await using var destinationEncrypted = File.Create(destinationPath, bufferLength);
+                await using var destination = new CryptoStream(destinationEncrypted, encryptor, CryptoStreamMode.Write);
+                await using var source = File.OpenRead(sourcePath);
+
+                double sourceFilePosition;
+                double sourceFileLength = source.Length;
+
+                var buffer = new byte[bufferLength];
+                int readed;
+                do
+                {
+                    readed = await source.ReadAsync(buffer, 0, buffer.Length, cancel).ConfigureAwait(false);
+                    // Дополнительные действия по завершению асинхронной операции
+                    // .........
+                    await destination.WriteAsync(buffer, 0, readed, cancel).ConfigureAwait(false);
+
+                    sourceFilePosition = source.Position;
+                    progress?.Report(sourceFilePosition/sourceFileLength);
+
+                    Thread.Sleep(1);
+
+                    if (cancel.IsCancellationRequested)
+                    {
+                        // Очистка состояния операции
+                        cancel.ThrowIfCancellationRequested();
+                    }
+
+                } while (readed > 0);
+
+                destination.FlushFinalBlock();
+
+                progress?.Report(1);
+            }
+            catch (OperationCanceledException)
+            {
+                File.Delete(destinationPath);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error in EncryptAsync: {0}", ex);
+                throw;
+            }
         }
 
 
         [Obsolete]
-        public async Task<bool> DecriptAsync(string sourcePath, string destinationPath, string password, int bufferLength = 104200)
+        public async Task<bool> DecriptAsync(string sourcePath, string destinationPath, string password, int bufferLength = 104200, 
+            IProgress<double>? progress = null, CancellationToken cancel = default)
         {
             if (!File.Exists(sourcePath)) throw new FileNotFoundException("Файл-источник для процесса дешифрования не найден", sourcePath);
             if (bufferLength <= 0) throw new ArgumentOutOfRangeException(nameof(bufferLength), bufferLength, "Размер буфера чтения должен быть больше 0");
 
+            cancel.ThrowIfCancellationRequested();
+
             var decryptor = GetCryptor(password, isEncryptor: false);
-
-            await using var destinationDecrypted = File.Create(destinationPath, bufferLength);
-            await using var destination = new CryptoStream(destinationDecrypted, decryptor, CryptoStreamMode.Write);
-            await using var encryptedSource = File.OpenRead(sourcePath);
-
-            var buffer = new byte[bufferLength];
-            int readed;
-            do
-            {
-                readed = await encryptedSource.ReadAsync(buffer, 0, bufferLength).ConfigureAwait(false);
-                // Дополнительные действия по завершению асинхронной операции
-                // .........
-                await destination.WriteAsync(buffer, 0, readed).ConfigureAwait(false);
-                Thread.Sleep(1);
-            } while (readed > 0);
 
             try
             {
-                destination.FlushFinalBlock();
+                await using var destinationDecrypted = File.Create(destinationPath, bufferLength);
+                await using var destination = new CryptoStream(destinationDecrypted, decryptor, CryptoStreamMode.Write);
+                await using var encryptedSource = File.OpenRead(sourcePath);
+
+                double sourceFilePosition;
+                double sourceFileLength = encryptedSource.Length;
+
+                var buffer = new byte[bufferLength];
+                int readed;
+                do
+                {
+                    readed = await encryptedSource.ReadAsync(buffer, 0, bufferLength, cancel).ConfigureAwait(false);
+                    // Дополнительные действия по завершению асинхронной операции
+                    // .........
+                    await destination.WriteAsync(buffer, 0, readed, cancel).ConfigureAwait(false);
+
+                    sourceFilePosition = encryptedSource.Position;
+                    progress?.Report(sourceFilePosition / sourceFileLength);
+
+                    Thread.Sleep(1);
+
+                    cancel.ThrowIfCancellationRequested();
+
+                } while (readed > 0);
+
+                progress?.Report(1);
+
+                try
+                {
+                    destination.FlushFinalBlock();
+                }
+                catch (CryptographicException)
+                {
+                    return false;
+                }
             }
-            catch (CryptographicException)
+            catch (OperationCanceledException)
             {
-                return false;
+                File.Delete(destinationPath);
+                throw;
             }
 
+
+            //return Task.FromResult(true);
             return true;
         }
     }
