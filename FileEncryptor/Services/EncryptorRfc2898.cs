@@ -135,7 +135,7 @@ namespace FileEncryptor.WPF.Services
                     sourceFilePosition = source.Position;
                     progress?.Report(sourceFilePosition/sourceFileLength);
 
-                    Thread.Sleep(1);
+                    //Thread.Sleep(1);
 
                     if (cancel.IsCancellationRequested)
                     {
@@ -149,15 +149,15 @@ namespace FileEncryptor.WPF.Services
 
                 progress?.Report(1);
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException e) when (e.CancellationToken == cancel)
             {
                 File.Delete(destinationPath);
-                throw;
+                //throw;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine("Error in EncryptAsync: {0}", ex);
-                throw;
+                //throw;
             }
         }
 
@@ -194,7 +194,7 @@ namespace FileEncryptor.WPF.Services
                     sourceFilePosition = encryptedSource.Position;
                     progress?.Report(sourceFilePosition / sourceFileLength);
 
-                    Thread.Sleep(1);
+                    //Thread.Sleep(1);
 
                     cancel.ThrowIfCancellationRequested();
 
@@ -211,10 +211,10 @@ namespace FileEncryptor.WPF.Services
                     return false;
                 }
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException e) when (e.CancellationToken == cancel)
             {
                 File.Delete(destinationPath);
-                throw;
+                //throw;
             }
 
 
